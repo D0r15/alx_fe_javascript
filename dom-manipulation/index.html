@@ -23,6 +23,13 @@
         margin: 5px;
         padding: 8px;
       }
+      #notification {
+        padding: 10px;
+        background-color: #dff0d8;
+        color: #3c763d;
+        margin-top: 10px;
+        display: none;
+      }
     </style>
   </head>
   <body>
@@ -48,8 +55,10 @@
 
     <h2>Sync with Server</h2>
     <button onclick="fetchQuotesFromServer()">Fetch Quotes from Server</button>
+    <button onclick="syncQuotes()">Sync Quotes with Server</button>
 
     <div id="formContainer"></div>
+    <div id="notification"></div>
 
     <script src="script.js"></script>
   </body>

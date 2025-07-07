@@ -1,4 +1,5 @@
-  const SERVER_URL ="https://mocki.io/v1/9d41d4b0-50f6-4983-a8ee-53710b8f8e15";
+const SERVER_URL = "https://mocki.io/v1/9d41d4b0-50f6-4983-a8ee-53710b8f8e15";
+    const POST_URL = "https://jsonplaceholder.typicode.com/posts";
     const SYNC_INTERVAL = 60000; // 1 minute
 
     let quotes = JSON.parse(localStorage.getItem("quotes")) || [];
@@ -25,11 +26,12 @@
     }
 
     function displayQuote(quote) {
+      const quoteDisplay = document.getElementById("quoteDisplay");
       if (!quote) {
-        document.getElementById("quoteDisplay").innerHTML = "<p>No quote found.</p>";
-        return;
+        quoteDisplay.innerHTML = "<p>No quote found.</p>";
+      } else {
+        quoteDisplay.innerHTML = `<blockquote>${quote.text}</blockquote><p><strong>Category:</strong> ${quote.category}</p>`;
       }
-      document.getElementById("quoteDisplay").innerHTML = `<blockquote>${quote.text}</blockquote><p><strong>Category:</strong> ${quote.category}</p>`;
     }
 
     function showRandomQuote() {
@@ -51,11 +53,24 @@
       const text = document.getElementById("newQuoteText").value.trim();
       const category = document.getElementById("newQuoteCategory").value.trim();
       if (!text || !category) return alert("Both fields are required.");
-      quotes.push({ text, category });
+      const newQuote = { text, category };
+      quotes.push(newQuote);
       saveQuotes();
       populateCategories();
       filterQuotes();
       document.getElementById("formContainer").innerHTML = "";
+      postQuoteToServer(newQuote);
+    }
+
+    function postQuoteToServer(quote) {
+      fetch(POST_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(quote)
+      })
+      .then(res => res.json())
+      .then(() => showNotification("Quote posted to server."))
+      .catch(() => showNotification("Failed to post quote to server."));
     }
 
     function importFromJsonFile(event) {
@@ -67,9 +82,9 @@
           saveQuotes();
           populateCategories();
           filterQuotes();
-          alert("Quotes imported successfully!");
-        } catch (error) {
-          alert("Failed to import quotes.");
+          showNotification("Quotes imported successfully!");
+        } catch {
+          showNotification("Failed to import quotes.");
         }
       };
       reader.readAsText(event.target.files[0]);
@@ -87,9 +102,9 @@
       URL.revokeObjectURL(url);
     }
 
-    function mergeQuotes(server, local) {
-      const existing = new Set(local.map(q => q.text));
-      return [...local, ...server.filter(q => !existing.has(q.text))];
+    function mergeQuotes(serverQuotes, localQuotes) {
+      const existingTexts = new Set(localQuotes.map(q => q.text));
+      return [...localQuotes, ...serverQuotes.filter(q => !existingTexts.has(q.text))];
     }
 
     function fetchQuotesFromServer() {
@@ -100,22 +115,24 @@
           saveQuotes();
           populateCategories();
           filterQuotes();
-          showNotification("Quotes fetched from server.");
+          showNotification("Quotes fetched from server and merged.");
         })
-        .catch(err => {
-          console.error("Server fetch failed", err);
-          showNotification("Failed to fetch quotes from server.");
-        });
+        .catch(() => showNotification("Failed to fetch quotes from server."));
+    }
+
+    function syncQuotes() {
+      fetchQuotesFromServer();
     }
 
     function showNotification(msg) {
-      alert(msg); // You can replace this with a fancier UI
-    }
-
-    function syncWithServer() {
-      fetchQuotesFromServer();
+      const notification = document.getElementById("notification");
+      notification.textContent = msg;
+      notification.style.display = "block";
+      setTimeout(() => {
+        notification.style.display = "none";
+      }, 4000);
     }
 
     populateCategories();
     filterQuotes();
-    setInterval(syncWithServer, SYNC_INTERVAL);
+    setInterval(syncQuotes, SYNC_INTERVAL);
