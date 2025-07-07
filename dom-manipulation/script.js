@@ -1,4 +1,5 @@
-const SERVER_URL = "https://mocki.io/v1/9d41d4b0-50f6-4983-a8ee-53710b8f8e15";
+
+    const SERVER_URL = "https://jsonplaceholder.typicode.com/posts";
     const POST_URL = "https://jsonplaceholder.typicode.com/posts";
     const SYNC_INTERVAL = 60000; // 1 minute
 
@@ -111,7 +112,8 @@ const SERVER_URL = "https://mocki.io/v1/9d41d4b0-50f6-4983-a8ee-53710b8f8e15";
       fetch(SERVER_URL)
         .then(res => res.json())
         .then(serverQuotes => {
-          quotes = mergeQuotes(serverQuotes, quotes);
+          if (!Array.isArray(serverQuotes)) serverQuotes = [];
+          quotes = mergeQuotes(serverQuotes.map(q => ({ text: q.title || q.text || "", category: q.category || "General" })), quotes);
           saveQuotes();
           populateCategories();
           filterQuotes();
