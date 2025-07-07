@@ -6,12 +6,8 @@ const quotes = [
 
 const quoteDisplay = document.getElementById("quoteDisplay");
 const newQuoteBtn = document.getElementById("newQuote");
-const quoteForm = document.getElementById("quoteForm");
-const quoteText = document.getElementById("quoteText");
-const quoteCategory = document.getElementById("quoteCategory");
 const categorySelect = document.getElementById("categorySelect");
 
-// Get unique categories from quotes
 function updateCategoryOptions() {
   const categories = [...new Set(quotes.map(q => q.category))];
   categorySelect.innerHTML = "";
@@ -23,7 +19,6 @@ function updateCategoryOptions() {
   });
 }
 
-// Show a random quote from the selected category
 function showRandomQuote() {
   const selectedCategory = categorySelect.value;
   const filteredQuotes = quotes.filter(q => q.category === selectedCategory);
@@ -35,23 +30,46 @@ function showRandomQuote() {
   quoteDisplay.textContent = filteredQuotes[randomIndex].text;
 }
 
-// Handle new quote submission
-function handleAddQuote(e) {
-  e.preventDefault();
-  const text = quoteText.value.trim();
-  const category = quoteCategory.value.trim();
-  if (text && category) {
-    quotes.push({ text, category });
-    quoteText.value = "";
-    quoteCategory.value = "";
-    updateCategoryOptions();
-    alert("Quote added!");
-  }
+function createAddQuoteForm() {
+  const form = document.createElement("form");
+
+  const inputQuote = document.createElement("input");
+  inputQuote.type = "text";
+  inputQuote.placeholder = "Quote text";
+  inputQuote.required = true;
+  inputQuote.id = "quoteText";
+
+  const inputCategory = document.createElement("input");
+  inputCategory.type = "text";
+  inputCategory.placeholder = "Category";
+  inputCategory.required = true;
+  inputCategory.id = "quoteCategory";
+
+  const submitBtn = document.createElement("button");
+  submitBtn.textContent = "Add Quote";
+  submitBtn.type = "submit";
+
+  form.appendChild(inputQuote);
+  form.appendChild(inputCategory);
+  form.appendChild(submitBtn);
+  document.body.appendChild(form);
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    const text = inputQuote.value.trim();
+    const category = inputCategory.value.trim();
+
+    if (text && category) {
+      quotes.push({ text, category });
+      updateCategoryOptions();
+      inputQuote.value = "";
+      inputCategory.value = "";
+      alert("Quote added!");
+    }
+  });
 }
 
-// Initialize
 updateCategoryOptions();
 showRandomQuote();
-
 newQuoteBtn.addEventListener("click", showRandomQuote);
-quoteForm.addEventListener("submit", handleAddQuote);
+createAddQuoteForm();
