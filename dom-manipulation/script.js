@@ -1,4 +1,4 @@
-  const SERVER_URL = "https://mocki.io/v1/6c5e79c5-9b97-4eaf-9011-6acaa273aa43";
+  const SERVER_URL ="https://mocki.io/v1/9d41d4b0-50f6-4983-a8ee-53710b8f8e15";
     const SYNC_INTERVAL = 60000; // 1 minute
 
     let quotes = JSON.parse(localStorage.getItem("quotes")) || [];
